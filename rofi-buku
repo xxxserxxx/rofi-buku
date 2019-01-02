@@ -157,10 +157,12 @@ deleteMenu () {
 
 editMenu () {
     id=$(getId "$content" "$menu")
-    title="$(getTitleFromId $id)"
-    url="$(getUrlFromId $id)"
-    comment="$(getCommentFromId $id)"
-    tags="$(getTagsFromId $id)"
+
+    title="$(getTitleFromId "${id}")"
+    url="$(getUrlFromId "${id}")"
+    comment="$(getCommentFromId "${id}")"
+    tags="$(getTagsFromId "${id}")"
+
     content=$(echo -e "1. title: $title\n2. url: $url\n3. comment: $comment\n4. tags: $tags")
     editmenu=$(echo -e "< Return\n---\n${content}" | _rofi -p '> ')
 
@@ -190,7 +192,7 @@ editTags () {
     if [[ $val -eq 1 ]]; then
         exit
     elif [[ $val -eq 0 ]]; then
-        buku -u ${id} --tag "${edittagsmenu}"
+        buku -u "${id}" --tag "${edittagsmenu}"
     fi
     mode=bookmarks main
 }
@@ -320,56 +322,44 @@ getId () {
 }
 
 getTitleFromId () {
-  echo "$(buku --nc -p $1 | grep -v '^waiting for input$' | gawk '
-  BEGIN {
-    RS=""
-    FS="\n"
-  }
-  {
-    print gensub(/[0-9]+\.\s*(.*)/, "\\1", "g", $1)
-  }
-  ')"
+  buku --nc -p "${1}" | grep -v '^waiting for input$' | gawk '
+    BEGIN { RS=""; FS="\n" }
+
+    { print gensub(/[0-9]+\.\s*(.*)/, "\\1", "g", $1) }
+  '
 }
 
 getUrlFromId () {
-  echo "$(buku --nc -p $1 | grep -v '^waiting for input$' | gawk '
-  BEGIN {
-    RS=""
-    FS="\n"
-  }
-  {
-    print gensub(/\s+> (.*)/, "\\1", "g", $2)
-  }
-  ')"
+  buku --nc -p "${1}" | grep -v '^waiting for input$' | gawk '
+    BEGIN { RS=""; FS="\n" }
+
+    { print gensub(/\s+> (.*)/, "\\1", "g", $2) }
+  '
 }
 
 getCommentFromId () {
-  echo "$(buku --nc -p $1 | grep -v '^waiting for input$' | gawk '
-  BEGIN {
-    RS=""
-    FS="\n"
-  }
-  {
-    if ($3 ~ /^\s+\+ /)
-      print gensub(/\s+\+ (.*)/, "\\1", "g", $3)
-  }
-  ')"
+  buku --nc -p "${1}" | grep -v '^waiting for input$' | gawk '
+    BEGIN { RS=""; FS="\n" }
+
+    {
+      if ($3 ~ /^\s+\+ /)
+        print gensub(/\s+\+ (.*)/, "\\1", "g", $3)
+    }
+  '
 }
 
 getTagsFromId () {
-  echo "$(buku --nc -p $1 | grep -v '^waiting for input$' | gawk '
-  BEGIN {
-    RS=""
-    FS="\n"
-  }
-  {
-    if ($3 ~ /^\s+# /)
-      print gensub(/\s+# (.*)/, "\\1", "g", $3)
+  buku --nc -p "${1}" | grep -v '^waiting for input$' | gawk '
+    BEGIN { RS=""; FS="\n" }
 
-    if ($4 ~ /^\s+# /)
-      print gensub(/\s+# (.*)/, "\\1", "g", $4)
-  }
-  ')"
+    {
+      if ($3 ~ /^\s+# /)
+        print gensub(/\s+# (.*)/, "\\1", "g", $3)
+
+      if ($4 ~ /^\s+# /)
+        print gensub(/\s+# (.*)/, "\\1", "g", $4)
+    }
+  '
 }
 
 mode=bookmarks main
