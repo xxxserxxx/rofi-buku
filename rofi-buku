@@ -172,29 +172,29 @@ editMenu () {
     elif [[ $val -eq 0 ]]; then
         if [[ $editmenu == "< Return" ]]; then
             main
+        elif [[ $editmenu =~ title:* ]]; then
+            editTitle
+        elif [[ $editmenu =~ url:* ]]; then
+            editUrl
+        elif [[ $editmenu =~ comment:* ]]; then
+            editComment
         elif [[ $editmenu == "tags: NOTAG" ]]; then
             addTags --update
         elif [[ $editmenu =~ tags:* ]]; then
             tags="${tags}" editTags
-        elif [[ $editmenu =~ url:* ]]; then
-            editUrl
-        elif [[ $editmenu =~ title:* ]]; then
-            editTitle
-        elif [[ $editmenu =~ comment:* ]]; then
-            editComment
         fi
     fi
 }
 
-editTags () {
-    edittagsmenu=$(echo | _rofi -filter "${tags}" -p '> ' -mesg "Edit Tags and hit Enter")
-    val=$?
-    if [[ $val -eq 1 ]]; then
-        exit
-    elif [[ $val -eq 0 ]]; then
-        buku -u "${id}" --tag "${edittagsmenu}"
-    fi
-    mode=bookmarks main
+editTitle () {
+  titlemenu=$(echo "" | _rofi -p "> " -filter "${title}" -mesg "Edit Title and hit Enter")
+  val=$?
+  if [[ $val -eq 1 ]]; then
+    exit
+  elif [[ $val -eq 0 ]]; then
+    buku -u "${id}" --title "${titlemenu}"
+  fi
+  mode=bookmarks main
 }
 
 editUrl () {
@@ -213,17 +213,6 @@ editUrl () {
     mode=bookmarks main
 }
 
-editTitle () {
-  titlemenu=$(echo "" | _rofi -p "> " -filter "${title}" -mesg "Edit Title and hit Enter")
-  val=$?
-  if [[ $val -eq 1 ]]; then
-    exit
-  elif [[ $val -eq 0 ]]; then
-    buku -u "${id}" --title "${titlemenu}"
-  fi
-  mode=bookmarks main
-}
-
 editComment () {
   commentmenu=$(echo "" | _rofi -p "> " -filter "${comment}" -mesg "Edit Comment and hit Enter")
   val=$?
@@ -233,6 +222,17 @@ editComment () {
     buku -u "${id}" --comment "${commentmenu}"
   fi
   mode=bookmarks main
+}
+
+editTags () {
+    edittagsmenu=$(echo | _rofi -filter "${tags}" -p '> ' -mesg "Edit Tags and hit Enter")
+    val=$?
+    if [[ $val -eq 1 ]]; then
+        exit
+    elif [[ $val -eq 0 ]]; then
+        buku -u "${id}" --tag "${edittagsmenu}"
+    fi
+    mode=bookmarks main
 }
 
 addMark () {
