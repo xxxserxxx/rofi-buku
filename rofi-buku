@@ -259,7 +259,7 @@ addMark () {
 }
 
 addTags () {
-  inserttags=$(buku --np --st | awk '{$NF=""; print $0}' | cut -d ' ' -f2- | _rofi -p '> ' -mesg "Add some tags. Separate tags with ', '")
+  inserttags=$(buku --np --st | grep -v '^waiting for input$' | awk '{$NF=""; print $0}' | cut -d ' ' -f2- | _rofi -p '> ' -mesg "Add some tags. Separate tags with ', '")
   val=$?
   if [[ $val -eq 1 ]]; then
     exit
