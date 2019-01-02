@@ -169,7 +169,7 @@ editMenu () {
     comment="$(getCommentFromId "${id}")"
     tags="$(getTagsFromId "${id}")"
 
-    content="1. title: $title\\n2. url: $url\\n3. comment: $comment\\n4. tags: $tags"
+    content="1. Title: $title\\n2. URL: $url\\n3. Comment: $comment\\n4. Tags: $tags"
     editmenu=$(echo -e "< Return\\n---\\n${content}" | _rofi -p '> ')
     val=$?
 
@@ -178,13 +178,13 @@ editMenu () {
     elif [[ $val -eq 0 ]]; then
         if [[ $editmenu == "< Return" ]]; then
             main
-        elif [[ $editmenu =~ title:* ]]; then
+        elif [[ $editmenu =~ Title:* ]]; then
             editTitle
-        elif [[ $editmenu =~ url:* ]]; then
+        elif [[ $editmenu =~ URL:* ]]; then
             editUrl
-        elif [[ $editmenu =~ comment:* ]]; then
+        elif [[ $editmenu =~ Comment:* ]]; then
             editComment
-        elif [[ $editmenu =~ tags:* ]]; then
+        elif [[ $editmenu =~ Tags:* ]]; then
             editTags
         fi
     fi
