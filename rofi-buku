@@ -132,7 +132,7 @@ optionsMenu () {
           exit
         elif [[ $val -eq 0 ]]; then
           if [[ $delask == "1. Yes" ]]; then
-            buku --replace "${menu}"
+	    echo y | script -qfc "buku --replace ${menu}" /dev/null
             mode=tags main
           elif [[ $delask == "2. No" ]]; then
             mode=tags main
