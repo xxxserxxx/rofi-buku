@@ -125,7 +125,7 @@ optionsMenu () {
           fi
         fi
       elif [[ $askmenu == "2. Delete Tag" ]]; then
-        delask=$(echo -e "1. Yes\\n2. No" | _rofi -p '> ' -mesg "Really delete tag?")
+        delask=$(echo -e "1. Yes\\n2. No" | _rofi -p '> ' -mesg "Really delete tag \"${menu}\" from ALL bookmarks?")
         val=$?
 
         if [[ $val -eq 1 ]]; then
