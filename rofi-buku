@@ -198,13 +198,13 @@ editTags () {
 }
 
 editUrl () {
-    bmarkmenu=$(echo "" | _rofi -p "> " -filter "${url}" -mesg "Edit URL and hit Enter")
+    urlmenu=$(echo "" | _rofi -p "> " -filter "${url}" -mesg "Edit URL and hit Enter")
     val=$?
     if [[ $val -eq 1 ]]; then
         exit
     elif [[ $val -eq 0 ]]; then
-        if [[ $bmarkmenu == "http"* ]]; then
-            buku -u "${id}" --url "${bmarkmenu}"
+        if [[ $urlmenu == "http"* ]]; then
+            buku -u "${id}" --url "${urlmenu}"
         else
             echo "" | rofi -e "Not a valid URI, Make sure URLs start with http"
             editBookmark
