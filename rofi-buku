@@ -206,11 +206,11 @@ editUrl () {
   if [[ $val -eq 1 ]]; then
     exit
   elif [[ $val -eq 0 ]]; then
-    if [[ $urlmenu == "http"* ]]; then
-      buku -u "${id}" --url "${urlmenu}"
-    else
+    if [[ $urlmenu != "http"* ]]; then
       echo "" | rofi -e "Not a valid URI, Make sure URLs start with http"
-      editBookmark
+      editUrl
+    else
+      buku -u "${id}" --url "${urlmenu}"
     fi
   fi
 
