@@ -158,10 +158,11 @@ deleteMenu () {
 editMenu () {
     id=$(getId "$content" "$menu")
     title="$(getTitleFromId $id)"
-    bookmark="$(getUrlFromId $id)"
+    url="$(getUrlFromId $id)"
     tags="$(getTagsFromId $id)"
-    content=$(echo -e "1. title: $title\n2. url: $bookmark\n3. tags: $tags")
+    content=$(echo -e "1. title: $title\n2. url: $url\n3. comment: $comment\n4. tags: $tags")
     editmenu=$(echo -e "< Return\n---\n${content}" | _rofi -p '> ')
+
     val=$?
     if [[ $val -eq 1 ]]; then
         exit
@@ -173,7 +174,7 @@ editMenu () {
         elif [[ $editmenu =~ tags:* ]]; then
             tags="${tags}" editTags
         elif [[ $editmenu =~ url:* ]]; then
-            editBookmark
+            editUrl
         elif [[ $editmenu =~ title:* ]]; then
             editTitle
         fi
@@ -191,8 +192,8 @@ editTags () {
     mode=bookmarks main
 }
 
-editBookmark () {
-    bmarkmenu=$(echo "" | _rofi -p "> " -filter "${bookmark}" -mesg "Edit Bookmark and hit Enter")
+editUrl () {
+    bmarkmenu=$(echo "" | _rofi -p "> " -filter "${url}" -mesg "Edit URL and hit Enter")
     val=$?
     if [[ $val -eq 1 ]]; then
         exit
