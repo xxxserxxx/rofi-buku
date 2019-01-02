@@ -178,10 +178,8 @@ editMenu () {
             editUrl
         elif [[ $editmenu =~ comment:* ]]; then
             editComment
-        elif [[ $editmenu == "tags: NOTAG" ]]; then
-            addTags --update
         elif [[ $editmenu =~ tags:* ]]; then
-            tags="${tags}" editTags
+            editTags
         fi
     fi
 }
