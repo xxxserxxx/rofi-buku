@@ -84,75 +84,81 @@ Use <span color='${help_color}'>${switch_view}</span> to switch View. <span colo
 }
 
 optionsMenu () {
-    if [[ $mode == "bookmarks" ]]; then
-        askmenu=$(echo -e "< Return\n---\n1. Edit\n2. Delete" | _rofi -p '> ' -mesg "Choose Action for bookmark")
-        val=$?
-        if [[ $val -eq 1 ]]; then
-            exit
-        elif [[ $val -eq 0 ]]; then
-            if [[ $askmenu == "< Return" ]]; then
-                export mode=bookmarks
-                main
-            elif [[ $askmenu == "1. Edit" ]]; then
-                editMenu
-            elif [[ $askmenu == "2. Delete" ]]; then
-                deleteMenu
-            fi
-        fi
-    elif [[ $mode == "tags" ]]; then
-        askmenu=$(echo -e "< Return\n---\n1. Replace Tag\n2. Delete Tag" | _rofi -p '> ' -mesg "Choose Action for tag \"${menu}\"")
-        val=$?
-        if [[ $val -eq 1 ]]; then
-            exit
-        elif [[ $val -eq 0 ]]; then
-            if [[ $askmenu == "< Return" ]]; then
-                export mode=tags
-                main
-            elif [[ $askmenu == "1. Replace Tag" ]]; then
-                newtag=$(echo | _rofi -p '> ' -mesg "Enter new tag name for tag \"${menu}\"")
-                val=$?
-                if [[ $val -eq 1 ]]; then
-                    exit
-                elif [[ $val -eq 0 ]]; then
-                    if [[ $newtag == "" ]]; then
-                        mode=tags main
-                    else
-                        buku -r "${menu}" "${newtag}"
-                        mode=tags main
-                    fi
-                fi
-            elif [[ $askmenu == "2. Delete Tag" ]]; then
-                delask=$(echo -e "1. Yes\n2. No" | _rofi -p '> ' -mesg "Really delete tag?")
-                val=$?
-                if [[ $val -eq 1 ]]; then
-                    exit
-                elif [[ $val -eq 0 ]]; then
-                    if [[ $delask == "1. Yes" ]]; then
-                        buku -r "${menu}"
-                        mode=tags main
-                    elif [[ $delask == "2. No" ]]; then
-                        mode=tags main
-                    fi
-                fi
-            fi
-        fi
+  if [[ $mode == "bookmarks" ]]; then
+    askmenu=$(echo -e "< Return\\n---\\n1. Edit\\n2. Delete" | _rofi -p '> ' -mesg "Choose Action for bookmark")
+    val=$?
+
+    if [[ $val -eq 1 ]]; then
+      exit
+    elif [[ $val -eq 0 ]]; then
+      if [[ $askmenu == "< Return" ]]; then
+        export mode=bookmarks
+        main
+      elif [[ $askmenu == "1. Edit" ]]; then
+        editMenu
+      elif [[ $askmenu == "2. Delete" ]]; then
+        deleteMenu
+      fi
     fi
+  elif [[ $mode == "tags" ]]; then
+    askmenu=$(echo -e "< Return\\n---\\n1. Replace Tag\\n2. Delete Tag" | _rofi -p '> ' -mesg "Choose Action for tag \"${menu}\"")
+    val=$?
+
+    if [[ $val -eq 1 ]]; then
+      exit
+    elif [[ $val -eq 0 ]]; then
+      if [[ $askmenu == "< Return" ]]; then
+        export mode=tags
+        main
+      elif [[ $askmenu == "1. Replace Tag" ]]; then
+        newtag=$(echo | _rofi -p '> ' -mesg "Enter new tag name for tag \"${menu}\"")
+        val=$?
+
+        if [[ $val -eq 1 ]]; then
+          exit
+        elif [[ $val -eq 0 ]]; then
+          if [[ $newtag == "" ]]; then
+            mode=tags main
+          else
+            buku --replace "${menu}" "${newtag}"
+            mode=tags main
+          fi
+        fi
+      elif [[ $askmenu == "2. Delete Tag" ]]; then
+        delask=$(echo -e "1. Yes\\n2. No" | _rofi -p '> ' -mesg "Really delete tag?")
+        val=$?
+
+        if [[ $val -eq 1 ]]; then
+          exit
+        elif [[ $val -eq 0 ]]; then
+          if [[ $delask == "1. Yes" ]]; then
+            buku --replace "${menu}"
+            mode=tags main
+          elif [[ $delask == "2. No" ]]; then
+            mode=tags main
+          fi
+        fi
+      fi
+    fi
+  fi
 }
 
 deleteMenu () {
-    id=$(getId "$content" "$menu")
-    delask=$(echo -e "1. Yes\n2. No" | _rofi -p '> ' -mesg "Really delete bookmark?")
-    val=$?
-    if [[ $val -eq 1 ]]; then
-        exit
-    elif [[ $val -eq 0 ]]; then
-        if [[ $delask == "1. Yes" ]]; then
-            buku -d ${id} --tacit
-            mode=bookmarks main
-        elif [[ $delask == "2. No" ]]; then
-            optionsMenu
-        fi
+  id=$(getId "$content" "$menu")
+
+  delask=$(echo -e "1. Yes\\n2. No" | _rofi -p '> ' -mesg "Really delete bookmark?")
+  val=$?
+
+  if [[ $val -eq 1 ]]; then
+    exit
+  elif [[ $val -eq 0 ]]; then
+    if [[ $delask == "1. Yes" ]]; then
+      buku -d "${id}" --tacit
+      mode=bookmarks main
+    elif [[ $delask == "2. No" ]]; then
+      optionsMenu
     fi
+  fi
 }
 
 editMenu () {
@@ -244,34 +250,32 @@ editTags () {
 addMark () {
   inserturl=$(echo -e "$(xclip -o)" | _rofi -p '> ' -mesg "Use URL below or type manually")
   val=$?
+
   if [[ $val -eq 1 ]]; then
-      exit
+    exit
   elif [[ $val -eq 0 ]]; then
-      addTags
+    addTags
   fi
 }
 
 addTags () {
-    inserttags=$(buku --np --st | awk '{$NF=""; print $0}' | cut -d ' ' -f2- | _rofi -p '> ' -mesg "Add some tags. Separate tags with ', '")
-    val=$?
-    if [[ $val -eq 1 ]]; then
-        exit
-    elif [[ $val -eq 0 ]]; then
-        if [[ $(echo "${inserttags}" | wc -l) -gt 1 ]]; then
-            taglist=$(echo "${inserttags}" | tr '\n' ',')
-            tags=()
-            for tag in $taglist; do
-                tags+=("$tag")
-            done
-        else
-            tags=${inserttags}
-        fi
-        if [[ $1 == "--update" ]]; then
-            buku -u "${id}" --tag ${tags}
-        else
-            buku -a ${inserturl} ${tags}
-        fi
+  inserttags=$(buku --np --st | awk '{$NF=""; print $0}' | cut -d ' ' -f2- | _rofi -p '> ' -mesg "Add some tags. Separate tags with ', '")
+  val=$?
+  if [[ $val -eq 1 ]]; then
+    exit
+  elif [[ $val -eq 0 ]]; then
+    if [[ $(echo "${inserttags}" | wc -l) -gt 1 ]]; then
+      taglist=$(echo "${inserttags}" | tr '\n' ',')
+      tags=()
+      for tag in $taglist; do
+        tags+=("$tag")
+      done
+    else
+      tags=${inserttags}
     fi
+
+    buku -a "${inserturl}" "${tags}"
+  fi
 }
 
 parseBuku () {
