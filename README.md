@@ -1,4 +1,4 @@
-# buku_run
+# rofi-buku
 rofi frontend for buku bookmarks manager
 
 ## Screenshot
