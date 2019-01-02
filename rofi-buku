@@ -159,6 +159,7 @@ editMenu () {
     id=$(getId "$content" "$menu")
     title="$(getTitleFromId $id)"
     url="$(getUrlFromId $id)"
+    comment="$(getCommentFromId $id)"
     tags="$(getTagsFromId $id)"
     content=$(echo -e "1. title: $title\n2. url: $url\n3. comment: $comment\n4. tags: $tags")
     editmenu=$(echo -e "< Return\n---\n${content}" | _rofi -p '> ')
@@ -177,6 +178,8 @@ editMenu () {
             editUrl
         elif [[ $editmenu =~ title:* ]]; then
             editTitle
+        elif [[ $editmenu =~ comment:* ]]; then
+            editComment
         fi
     fi
 }
@@ -215,6 +218,17 @@ editTitle () {
     exit
   elif [[ $val -eq 0 ]]; then
     buku -u "${id}" --title "${titlemenu}"
+  fi
+  mode=bookmarks main
+}
+
+editComment () {
+  commentmenu=$(echo "" | _rofi -p "> " -filter "${comment}" -mesg "Edit Comment and hit Enter")
+  val=$?
+  if [[ $val -eq 1 ]]; then
+    exit
+  elif [[ $val -eq 0 ]]; then
+    buku -u "${id}" --comment "${commentmenu}"
   fi
   mode=bookmarks main
 }
@@ -259,11 +273,22 @@ BEGIN {
   FS="\n"
 }
 {
-  if ($3 == "")
-    $3 = " # NOTAG"
   id = gensub(/([0-9]+)\.(.*)/, "\\1", "g", $1)
   url = substr(gensub(/\s+> (.*)/, "\\1", "g", $2),0,max)
-  tags = gensub(/\s+# (.*)/, "\\1", "g", $3)
+
+  if ($3 ~ /^\s+\+ /)
+    comment = gensub(/\s+\+ (.*)/, "\\1", "g", $3)
+  else
+    comment = ""
+
+  if ($3 ~ /^\s+# /)
+    tags = gensub(/\s+# (.*)/, "\\1", "g", $3)
+  else
+    if ($4 ~ /^\s+# /)
+      tags = gensub(/\s+# (.*)/, "\\1", "g", $4)
+    else
+      tags = "NOTAG"
+
   title = substr(gensub(/[0-9]+\.\s*(.*)/, "\\1", "g", $1),0,max)
 
   if (type == 1)
@@ -318,6 +343,19 @@ getUrlFromId () {
   ')"
 }
 
+getCommentFromId () {
+  echo "$(buku --nc -p $1 | grep -v '^waiting for input$' | gawk '
+  BEGIN {
+    RS=""
+    FS="\n"
+  }
+  {
+    if ($3 ~ /^\s+\+ /)
+      print gensub(/\s+\+ (.*)/, "\\1", "g", $3)
+  }
+  ')"
+}
+
 getTagsFromId () {
   echo "$(buku --nc -p $1 | grep -v '^waiting for input$' | gawk '
   BEGIN {
@@ -325,7 +363,11 @@ getTagsFromId () {
     FS="\n"
   }
   {
-    print gensub(/\s+# (.*)/, "\\1", "g", $3)
+    if ($3 ~ /^\s+# /)
+      print gensub(/\s+# (.*)/, "\\1", "g", $3)
+
+    if ($4 ~ /^\s+# /)
+      print gensub(/\s+# (.*)/, "\\1", "g", $4)
   }
   ')"
 }
