@@ -301,7 +301,7 @@ parseBuku () {
       if (type == 2)
         print id "\t" title "\t" tags
       if (type == 3)
-          print " \t" url "\t "
+        print id " \t" title "\t" url "\t" tags
 
       print ""
     }
